@@ -20,7 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("api/bank/account")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://pro.oyefin.com")
 public class BankAccountController {
 
 	@Autowired
@@ -32,45 +32,47 @@ public class BankAccountController {
 	public ResponseEntity<CommonApiResponse> addBankAccount(@RequestBody AddBankAccountRequestDto request) {
 		return this.bankAccountResource.addBankAccount(request);
 	}
-	
+
 	@GetMapping("fetch/all")
-	@Operation(summary =  "Api to fetch All Bank accounts")
+	@Operation(summary = "Api to fetch All Bank accounts")
 	public ResponseEntity<BankAccountResponseDto> getAllBankAccounts() {
 		return this.bankAccountResource.fetchAllBankAccounts();
 	}
-	
+
 	@GetMapping("fetch/bankwise")
-	@Operation(summary =  "Api to fetch Bank accounts")
+	@Operation(summary = "Api to fetch Bank accounts")
 	public ResponseEntity<BankAccountResponseDto> getBankAccounts(@RequestParam("bankId") int bankId) {
 		return this.bankAccountResource.fetchBankAccountByBank(bankId);
 	}
-	
+
 	@GetMapping("fetch/id")
-	@Operation(summary =  "Api to fetch Bank account by account Id")
+	@Operation(summary = "Api to fetch Bank account by account Id")
 	public ResponseEntity<BankAccountResponseDto> getBankAccountById(@RequestParam("accountId") int accountId) {
 		return this.bankAccountResource.fetchBankAccountById(accountId);
 	}
-	
+
 	@GetMapping("fetch/user")
-	@Operation(summary =  "Api to fetch Bank account by user Id")
+	@Operation(summary = "Api to fetch Bank account by user Id")
 	public ResponseEntity<BankAccountResponseDto> getBankAccountByUser(@RequestParam("userId") int userId) {
 		return this.bankAccountResource.fetchBankAccountByUserId(userId);
 	}
-	
+
 	@GetMapping("search")
-	@Operation(summary =  "Api to search bank accounts by bank")
-	public ResponseEntity<BankAccountResponseDto> searchBankBy(@RequestParam("bankId") int bankId, @RequestParam("accountNumber") String accountNumber) {
+	@Operation(summary = "Api to search bank accounts by bank")
+	public ResponseEntity<BankAccountResponseDto> searchBankBy(@RequestParam("bankId") int bankId,
+			@RequestParam("accountNumber") String accountNumber) {
 		return this.bankAccountResource.searchBankAccounts(accountNumber, bankId);
 	}
-	
+
 	@PostMapping("update/status")
-	@Operation(summary =  "Api to update the bank account status")
-	public ResponseEntity<CommonApiResponse>updateBankAccountStatus(@RequestBody BankAccountStatusUpdateRequestDto request) {
+	@Operation(summary = "Api to update the bank account status")
+	public ResponseEntity<CommonApiResponse> updateBankAccountStatus(
+			@RequestBody BankAccountStatusUpdateRequestDto request) {
 		return this.bankAccountResource.updateBankAccountStatus(request);
 	}
-	
+
 	@GetMapping("search/all")
-	@Operation(summary =  "Api to search bank accounts by account no")
+	@Operation(summary = "Api to search bank accounts by account no")
 	public ResponseEntity<BankAccountResponseDto> searchBankBy(@RequestParam("accountNumber") String accountNumber) {
 		return this.bankAccountResource.searchBankAccounts(accountNumber);
 	}

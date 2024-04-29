@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("api/beneficiary/")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://pro.oyefin.com")
 public class BeneficiaryController {
 
 	@Autowired
@@ -50,7 +50,8 @@ public class BeneficiaryController {
 
 	@DeleteMapping("delete")
 	@Operation(summary = "Api to delete the Beneficiary account")
-	public ResponseEntity<CommonApiResponse> deleteBeneficiaryAccount(@RequestParam("beneficiaryId") Integer beneficiaryId)
+	public ResponseEntity<CommonApiResponse> deleteBeneficiaryAccount(
+			@RequestParam("beneficiaryId") Integer beneficiaryId)
 			throws Exception {
 		return this.beneficiaryResource.deleteBeneficiaryAccount(beneficiaryId);
 	}

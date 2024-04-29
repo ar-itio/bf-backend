@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("api/bank/")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://pro.oyefin.com")
 public class BankController {
 
 	@Autowired
@@ -27,30 +27,31 @@ public class BankController {
 
 	// for customer and bank register
 	@PostMapping("register")
-	@Operation(summary =  "Api to register bank")
+	@Operation(summary = "Api to register bank")
 	public ResponseEntity<CommonApiResponse> registerBank(@RequestBody RegisterBankRequestDto request) {
 		return this.bankResource.registerBank(request);
 	}
 
 	// for fetching all the Banks
 	@GetMapping("fetch/all")
-	@Operation(summary =  "Api to fetch all banks")
+	@Operation(summary = "Api to fetch all banks")
 	public ResponseEntity<BankDetailsResponseDto> fetchAllBanks() {
 		return this.bankResource.fetchAllBanks();
 	}
 
 	// for fetching all the Bank by Id
 	@GetMapping("fetch/id")
-	@Operation(summary =  "Api to fetch bank by id")
+	@Operation(summary = "Api to fetch bank by id")
 	public ResponseEntity<BankDetailsResponseDto> fetchBankById(@RequestParam("bankId") int bankId) {
 		return this.bankResource.fetchBankById(bankId);
 	}
-	
-//	// for fetching the Bank by using the Bank user Id
-//	@GetMapping("fetch/user")
-//	@Operation(summary =  "Api to fetch bank by user id")
-//	public ResponseEntity<BankDetailsResponseDto> fetchBankByUserId(@RequestParam("userId") int userId) {
-//		return this.bankResource.fetchBankByUserId(userId);
-//	}
+
+	// // for fetching the Bank by using the Bank user Id
+	// @GetMapping("fetch/user")
+	// @Operation(summary = "Api to fetch bank by user id")
+	// public ResponseEntity<BankDetailsResponseDto>
+	// fetchBankByUserId(@RequestParam("userId") int userId) {
+	// return this.bankResource.fetchBankByUserId(userId);
+	// }
 
 }

@@ -1,4 +1,4 @@
- package com.onlinebankingsystem.controller;
+package com.onlinebankingsystem.controller;
 
 import java.io.IOException;
 
@@ -23,55 +23,55 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("api/bank/transaction")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://pro.oyefin.com")
 public class BankAccountTransactionController {
 
 	@Autowired
 	private BankAccountTransactionResource bankAccountTransactionResource;
 
 	@PostMapping("deposit")
-	@Operation(summary =  "Api for Bank transaction deposit")
+	@Operation(summary = "Api for Bank transaction deposit")
 	public ResponseEntity<CommonApiResponse> bankDepositTransaction(@RequestBody BankTransactionRequestDto request)
 			throws Exception {
 		return this.bankAccountTransactionResource.depositAmountTxn(request);
 	}
 
 	@PostMapping("withdraw")
-	@Operation(summary =  "Api for Bank transaction withdraw")
+	@Operation(summary = "Api for Bank transaction withdraw")
 	public ResponseEntity<CommonApiResponse> bankWithdrawTransaction(@RequestBody BankTransactionRequestDto request)
 			throws Exception {
 		return this.bankAccountTransactionResource.withdrawAmountTxn(request);
 	}
 
 	@PostMapping("account/transfer")
-	@Operation(summary =  "Api for Bank Account transfer")
+	@Operation(summary = "Api for Bank Account transfer")
 	public ResponseEntity<CommonApiResponse> accountTransferTransaction(@RequestBody BankTransactionRequestDto request)
 			throws Exception {
 		return this.bankAccountTransactionResource.accountTransfer(request);
 	}
 
 	@GetMapping("history")
-	@Operation(summary =  "Api for fetch bank transaction history")
+	@Operation(summary = "Api for fetch bank transaction history")
 	public ResponseEntity<BankTransactionResponseDto> getUserBankTransactionHistory(
 			@RequestParam("userId") int userId) {
 		return this.bankAccountTransactionResource.bankTransactionHistory(userId);
 	}
 
 	@GetMapping("all")
-	@Operation(summary =  "Api for fetch bank transaction history")
+	@Operation(summary = "Api for fetch bank transaction history")
 	public ResponseEntity<BankTransactionResponseDto> getAllBankCustomerTransactions() {
 		return this.bankAccountTransactionResource.allBankCustomerTransactions();
 	}
 
 	@GetMapping("customer/fetch")
-	@Operation(summary =  "Api for fetch bank transaction history")
+	@Operation(summary = "Api for fetch bank transaction history")
 	public ResponseEntity<BankTransactionResponseDto> getBankCustomerTransaction(@RequestParam("bankId") int bankId,
 			@RequestParam("accountNo") String accountNo) {
 		return this.bankAccountTransactionResource.getBankCustomerTransaction(bankId, accountNo);
 	}
 
 	@GetMapping("customer/fetch/timerange")
-	@Operation(summary =  "Api for fetch bank customer transaction history by time range")
+	@Operation(summary = "Api for fetch bank customer transaction history by time range")
 	public ResponseEntity<BankTransactionResponseDto> getBankCustomerTransactionByTimeRange(
 			@RequestParam("bankId") int bankId, @RequestParam("accountNo") String accountNo,
 			@RequestParam("startTime") String startTime, @RequestParam("endTime") String endTime) {
@@ -80,7 +80,7 @@ public class BankAccountTransactionController {
 	}
 
 	@GetMapping("all/customer/fetch/timerange")
-	@Operation(summary =  "Api for fetch bank all customer transaction history")
+	@Operation(summary = "Api for fetch bank all customer transaction history")
 	public ResponseEntity<BankTransactionResponseDto> getBankAllCustomerTransactionsByTimeRange(
 			@RequestParam("bankId") int bankId, @RequestParam("startTime") String startTime,
 			@RequestParam("endTime") String endTime) {
@@ -88,14 +88,14 @@ public class BankAccountTransactionController {
 	}
 
 	@GetMapping("all/customer/fetch")
-	@Operation(summary =  "Api for fetch bank all customer tranctions")
+	@Operation(summary = "Api for fetch bank all customer tranctions")
 	public ResponseEntity<BankTransactionResponseDto> getBankAllCustomerTransaction(
 			@RequestParam("bankId") int bankId) {
 		return this.bankAccountTransactionResource.getBankAllCustomerTransaction(bankId);
 	}
 
 	@GetMapping("history/timerange")
-	@Operation(summary =  "Api for fetch customer transactions by time range")
+	@Operation(summary = "Api for fetch customer transactions by time range")
 	public ResponseEntity<BankTransactionResponseDto> getCustomerTransactionsByTimeRange(
 			@RequestParam("userId") int userId, @RequestParam("startTime") String startTime,
 			@RequestParam("endTime") String endTime) {
@@ -103,7 +103,7 @@ public class BankAccountTransactionController {
 	}
 
 	@GetMapping("statement/download")
-	@Operation(summary =  "Api for downloading the Bank Statement using account Id")
+	@Operation(summary = "Api for downloading the Bank Statement using account Id")
 	public void downloadBankStatement(@RequestParam("accountId") int accountId,
 			@RequestParam("startTime") String startTime, @RequestParam("endTime") String endTime,
 			HttpServletResponse response) throws DocumentException, IOException {

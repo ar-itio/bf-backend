@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("api/transaction/")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://pro.oyefin.com")
 public class BankTransactionController {
 
 	@Autowired
