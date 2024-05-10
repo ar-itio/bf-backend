@@ -48,9 +48,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+
 @Component
 public class UserResource {
-    private String profileImageUploadDir; 
+	private String profileImageUploadDir;
 
 	private final Logger LOG = LoggerFactory.getLogger(UserResource.class);
 
@@ -406,34 +407,36 @@ public class UserResource {
 		return new ResponseEntity<UserListResponseDto>(response, HttpStatus.OK);
 	}
 
-//	public ResponseEntity<UserListResponseDto> searchBankCustomer(int bankId, String customerName) {
-//
-//		UserListResponseDto response = new UserListResponseDto();
-//
-//		List<User> users = new ArrayList<>();
-//		
-//		users = this.userService.searchBankCustomerByNameAndRole(customerName, bankId, UserRole.ROLE_CUSTOMER.value());
-//		
-//		if(!users.isEmpty()) {
-//			response.setUsers(users);
-//		}
-//		
-//		response.setResponseMessage("User Fetched Successfully");
-//		response.setSuccess(true);
-//
-//		// Convert the object to a JSON string
-//		String jsonString = null;
-//		try {
-//			jsonString = objectMapper.writeValueAsString(response);
-//		} catch (JsonProcessingException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//		System.out.println(jsonString);
-//
-//		return new ResponseEntity<UserListResponseDto>(response, HttpStatus.OK);
-//	}
+	// public ResponseEntity<UserListResponseDto> searchBankCustomer(int bankId,
+	// String customerName) {
+	//
+	// UserListResponseDto response = new UserListResponseDto();
+	//
+	// List<User> users = new ArrayList<>();
+	//
+	// users = this.userService.searchBankCustomerByNameAndRole(customerName,
+	// bankId, UserRole.ROLE_CUSTOMER.value());
+	//
+	// if(!users.isEmpty()) {
+	// response.setUsers(users);
+	// }
+	//
+	// response.setResponseMessage("User Fetched Successfully");
+	// response.setSuccess(true);
+	//
+	// // Convert the object to a JSON string
+	// String jsonString = null;
+	// try {
+	// jsonString = objectMapper.writeValueAsString(response);
+	// } catch (JsonProcessingException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	//
+	// System.out.println(jsonString);
+	//
+	// return new ResponseEntity<UserListResponseDto>(response, HttpStatus.OK);
+	// }
 
 	public ResponseEntity<UserListResponseDto> searchBankCustomer(String customerName) {
 
@@ -560,11 +563,11 @@ public class UserResource {
 
 		existingUser.setCity(request.getCity());
 		existingUser.setContact(request.getContact());
-		
-		if(org.apache.commons.lang3.StringUtils.isNotEmpty(request.getGender())) {
+
+		if (org.apache.commons.lang3.StringUtils.isNotEmpty(request.getGender())) {
 			existingUser.setGender(request.getGender());
 		}
-		
+
 		existingUser.setName(request.getName());
 		existingUser.setPincode(request.getPincode());
 		existingUser.setStreet(request.getStreet());
@@ -615,15 +618,14 @@ public class UserResource {
 			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.OK);
 		}
 
-		
 		sendResetEmail(existingUser, "Reset Password - Online Banking");
-		
+
 		response.setResponseMessage("We have sent you reset password Link on your email id!!!");
 		response.setSuccess(true);
 
 		return new ResponseEntity<CommonApiResponse>(response, HttpStatus.OK);
 	}
-	
+
 	private void sendResetEmail(User user, String subject) {
 
 		StringBuilder emailBody = new StringBuilder();
@@ -631,7 +633,8 @@ public class UserResource {
 		emailBody.append("<h3>Dear " + user.getName() + ",</h3>");
 		emailBody.append("<p>You can reset the password by using the below link.</p>");
 		emailBody.append("</br>");
-		emailBody.append("<a href='http://localhost:3000/"+user.getId()+"/reset-password'>Click me to reset the password</a>");
+		emailBody.append("<a href='https://api.pro.oyefin.com" + user.getId()
+				+ "/reset-password'>Click me to reset the password</a>");
 
 		emailBody.append("<p>Best Regards,<br/>Bank</p>");
 
@@ -652,8 +655,6 @@ public class UserResource {
 
 			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
 		}
-		
-		
 
 		User existingUser = this.userService.getUserById(request.getUserId());
 
@@ -663,27 +664,24 @@ public class UserResource {
 
 			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.OK);
 		}
-		
 
 		existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
-		
-		
+
 		User updatedPassword = this.userService.updateUser(existingUser);
-		
-		if(updatedPassword == null) {
+
+		if (updatedPassword == null) {
 			response.setResponseMessage("Failed to Reset the password!!!");
 			response.setSuccess(false);
 
 			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		
+
 		response.setResponseMessage("Password Reset Successful!!!");
 		response.setSuccess(true);
 
 		return new ResponseEntity<CommonApiResponse>(response, HttpStatus.OK);
 	}
-	
-	
+
 	// Add By Prince For Update Profile...
 	public ResponseEntity<CommonApiResponse> updateUserData(UserProfileUpdateDto request) {
 
@@ -691,7 +689,7 @@ public class UserResource {
 
 		CommonApiResponse response = new CommonApiResponse();
 
-		if (request == null ) {
+		if (request == null) {
 			response.setResponseMessage("bad request - missing input");
 			response.setSuccess(true);
 
@@ -705,45 +703,45 @@ public class UserResource {
 			response.setSuccess(true);
 
 			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
-		}		
-		if(org.apache.commons.lang3.StringUtils.isNotEmpty(request.getGender())) {
+		}
+		if (org.apache.commons.lang3.StringUtils.isNotEmpty(request.getGender())) {
 			existingUser.setGender(request.getGender());
 		}
-		existingUser.setName(request.getFirstName()+" "+request.getLastName());
+		existingUser.setName(request.getFirstName() + " " + request.getLastName());
 		existingUser.setPincode(request.getPincode());
 		existingUser.setStreet(request.getStreet());
-	    existingUser.setEmail(request.getEmail());
-	    existingUser.setRoles(request.getRoles());
-	    existingUser.setContact(request.getContact());
-	    existingUser.setIsAccountLinked(request.getIsAccountLinked());
-	    existingUser.setAccountId(request.getAccountId());
-	    existingUser.setStatus(request.getStatus());
-	    existingUser.setFirstName(request.getFirstName());
-	    existingUser.setLastName(request.getLastName());
-	    existingUser.setContactNumber(request.getContactNumber());
-	    existingUser.setGender(request.getGender());
-	    existingUser.setDateOfBirth(request.getDateOfBirth());
-	    existingUser.setAddress(request.getAddress());
-	    existingUser.setAddress2(request.getAddress2());
-	    existingUser.setCity(request.getCity());
-	    existingUser.setState(request.getState());
-	    existingUser.setCountry(request.getCountry());
-	    existingUser.setIndividualOrCorporate(request.getIndividualOrCorporate());
-	    existingUser.setEmploymentStatus(request.getEmploymentStatus());
-	    existingUser.setRoleInCompany(request.getRoleInCompany());
-	    existingUser.setBusinessActivity(request.getBusinessActivity());
-	    existingUser.setEnterActivity(request.getEnterActivity());
-	    existingUser.setCompanyName(request.getCompanyName());
-	    existingUser.setCompanyRegistrationNumber(request.getCompanyRegistrationNumber());
-	    existingUser.setDateOfIncorporation(request.getDateOfIncorporation());
-	    existingUser.setCountryOfIncorporation(request.getCountryOfIncorporation());
-	    existingUser.setCompanyAddress(request.getCompanyAddress());
-	    existingUser.setNationality(request.getNationality());
-	    existingUser.setPlaceOfBirth(request.getPlaceOfBirth());
-	    existingUser.setIdType(request.getIdType());
-	    existingUser.setIdNumber(request.getIdNumber());
-	    existingUser.setIdExpiryDate(request.getIdExpiryDate());
-	    existingUser.setAccountNumber(request.getAccountNumber());
+		existingUser.setEmail(request.getEmail());
+		existingUser.setRoles(request.getRoles());
+		existingUser.setContact(request.getContact());
+		existingUser.setIsAccountLinked(request.getIsAccountLinked());
+		existingUser.setAccountId(request.getAccountId());
+		existingUser.setStatus(request.getStatus());
+		existingUser.setFirstName(request.getFirstName());
+		existingUser.setLastName(request.getLastName());
+		existingUser.setContactNumber(request.getContactNumber());
+		existingUser.setGender(request.getGender());
+		existingUser.setDateOfBirth(request.getDateOfBirth());
+		existingUser.setAddress(request.getAddress());
+		existingUser.setAddress2(request.getAddress2());
+		existingUser.setCity(request.getCity());
+		existingUser.setState(request.getState());
+		existingUser.setCountry(request.getCountry());
+		existingUser.setIndividualOrCorporate(request.getIndividualOrCorporate());
+		existingUser.setEmploymentStatus(request.getEmploymentStatus());
+		existingUser.setRoleInCompany(request.getRoleInCompany());
+		existingUser.setBusinessActivity(request.getBusinessActivity());
+		existingUser.setEnterActivity(request.getEnterActivity());
+		existingUser.setCompanyName(request.getCompanyName());
+		existingUser.setCompanyRegistrationNumber(request.getCompanyRegistrationNumber());
+		existingUser.setDateOfIncorporation(request.getDateOfIncorporation());
+		existingUser.setCountryOfIncorporation(request.getCountryOfIncorporation());
+		existingUser.setCompanyAddress(request.getCompanyAddress());
+		existingUser.setNationality(request.getNationality());
+		existingUser.setPlaceOfBirth(request.getPlaceOfBirth());
+		existingUser.setIdType(request.getIdType());
+		existingUser.setIdNumber(request.getIdNumber());
+		existingUser.setIdExpiryDate(request.getIdExpiryDate());
+		existingUser.setAccountNumber(request.getAccountNumber());
 		existingUser.setProfileComplete(true);
 
 		User updatedUser = this.userService.updateUser(existingUser);
@@ -770,51 +768,52 @@ public class UserResource {
 		return new ResponseEntity<CommonApiResponse>(response, HttpStatus.OK);
 	}
 
-	   public ResponseEntity<CommonApiResponse> uploadProfileImage(Long userId, MultipartFile image) {
-   		CommonApiResponse response = new CommonApiResponse();
-         profileImageUploadDir = "C:\\Users\\sys1\\Desktop\\online-banking-system-frontend\\src\\customerPhotos";
+	public ResponseEntity<CommonApiResponse> uploadProfileImage(Long userId, MultipartFile image) {
+		CommonApiResponse response = new CommonApiResponse();
+		profileImageUploadDir = "C:\\Users\\sys1\\Desktop\\online-banking-system-frontend\\src\\customerPhotos";
 
-	        try {
+		try {
 
-	            // Check if the image is not empty
-	            if (image.isEmpty()) {
-					return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
-	            }
-
-	            // Ensure the directory exists, create if not
-	            Path directoryPath = Paths.get(profileImageUploadDir);
-	            Files.createDirectories(directoryPath);
-
-	            // Generate a unique filename for the uploaded image
-	            String filename = userId + "_"+ image.getOriginalFilename();
-	            Path filePath = Paths.get(profileImageUploadDir, filename);
-
-	            User existingUser = this.userService.getUserById(Integer.valueOf(userId.toString()));
-	    		if (existingUser == null) {
-	    			response.setResponseMessage("User Dosn't Exist!!!");
-	    			response.setSuccess(false);
-
-	    			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
-	    		}
-	    		existingUser.setProfileImg(filename);
-	    		
-	    		User updatedProfile = this.userService.updateUser(existingUser);
-	    		
-	    		if(updatedProfile == null) {
-	    			response.setResponseMessage("Failed to  updated Profile!!!");
-	    			response.setSuccess(false);
-
-	    			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-	    		}
-	            // Save the image to the file system
-	            Files.write(filePath, image.getBytes());
-
-	            // Optionally, you can save the file path or filename to the database for future retrieval
-
-				return new ResponseEntity<CommonApiResponse>(response, HttpStatus.OK);
-	        } catch (Exception e) {
-	            e.printStackTrace();
+			// Check if the image is not empty
+			if (image.isEmpty()) {
 				return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
-	        }
-	    }
+			}
+
+			// Ensure the directory exists, create if not
+			Path directoryPath = Paths.get(profileImageUploadDir);
+			Files.createDirectories(directoryPath);
+
+			// Generate a unique filename for the uploaded image
+			String filename = userId + "_" + image.getOriginalFilename();
+			Path filePath = Paths.get(profileImageUploadDir, filename);
+
+			User existingUser = this.userService.getUserById(Integer.valueOf(userId.toString()));
+			if (existingUser == null) {
+				response.setResponseMessage("User Dosn't Exist!!!");
+				response.setSuccess(false);
+
+				return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
+			}
+			existingUser.setProfileImg(filename);
+
+			User updatedProfile = this.userService.updateUser(existingUser);
+
+			if (updatedProfile == null) {
+				response.setResponseMessage("Failed to  updated Profile!!!");
+				response.setSuccess(false);
+
+				return new ResponseEntity<CommonApiResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			// Save the image to the file system
+			Files.write(filePath, image.getBytes());
+
+			// Optionally, you can save the file path or filename to the database for future
+			// retrieval
+
+			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
+		}
+	}
 }
