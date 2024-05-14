@@ -43,7 +43,8 @@ public class SecurityConfig {
 				.authorizeHttpRequests(
 						auth -> auth.requestMatchers("/api/user/login", "/api/user/admin/register", "/api/user/register", "/api/transaction/update/status",
 								"/api/transaction/fetch/customer/transactions/all","/api/user/fetch/id", "/api/user/send/reset-password/mail",
-								"/api/user/reset-password","/api/user/update-profile","/api/user/upload-profile-image","/api/fee/detail/fetch/type","/api/currencies/add","/api/currencies/fatch","/api/currencies/add","/api/currencies/delete/id").permitAll()
+								"/api/user/reset-password","/api/user/update-profile","/api/user/upload-profile-image","/api/fee/detail/fetch/type","/api/currencies/add","/api/currencies/fatch","/api/currencies/fatchAccount","/api/currencies/fatchHostDetail","/api/currencies/delete/id","/api/currencies/deleteAccount/id",
+								"/api/currencies/updateHostDetail","/api/currencies/fatchHostDetail","/api/currencies/fatchAdminAccount").permitAll()
 						
 						// this APIs are only accessible by ADMIN
 						.requestMatchers("/api/bank/register","/api/bank/fetch/all", "/api/bank/fetch/user",
