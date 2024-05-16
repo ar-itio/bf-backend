@@ -1,5 +1,8 @@
 package com.onlinebankingsystem.controller;
 
+import java.math.BigDecimal;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,15 +15,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.onlinebankingsystem.dao.UserAccountDao;
 import com.onlinebankingsystem.dto.CommonApiResponse;
 import com.onlinebankingsystem.dto.RegisterUserRequestDto;
+import com.onlinebankingsystem.dto.UserAccountDto;
 import com.onlinebankingsystem.dto.UserListResponseDto;
 import com.onlinebankingsystem.dto.UserLoginRequest;
 import com.onlinebankingsystem.dto.UserLoginResponse;
 import com.onlinebankingsystem.dto.UserProfileUpdateDto;
 import com.onlinebankingsystem.dto.UserStatusUpdateRequestDto;
 import com.onlinebankingsystem.entity.User;
+import com.onlinebankingsystem.entity.UserAccounts;
 import com.onlinebankingsystem.resource.UserResource;
+import com.onlinebankingsystem.utility.TransactionIdGenerator;
+import com.onlinebankingsystem.utility.Constants.UserStatus;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -31,6 +39,9 @@ public class UserController {
 
 	@Autowired
 	private UserResource userResource;
+
+	@Autowired
+	private UserAccountDao userAccountDao;
 
 	// for customer and bank register
 	@PostMapping("register")
@@ -87,11 +98,13 @@ public class UserController {
 		return userResource.fetchBankCustomerByBankId(bankId);
 	}
 
-//	@GetMapping("/bank/customer/search")
-//	@Operation(summary =  "Api to get Bank Customers by bank id")
-//	public ResponseEntity<UserListResponseDto> searchBankCustomer(@RequestParam("bankId") int bankId, @RequestParam("customerName") String customerName) {
-//		return userResource.searchBankCustomer(bankId, customerName);
-//	}
+	// @GetMapping("/bank/customer/search")
+	// @Operation(summary = "Api to get Bank Customers by bank id")
+	// public ResponseEntity<UserListResponseDto>
+	// searchBankCustomer(@RequestParam("bankId") int bankId,
+	// @RequestParam("customerName") String customerName) {
+	// return userResource.searchBankCustomer(bankId, customerName);
+	// }
 
 	@GetMapping("/all/customer/search")
 	@Operation(summary = "Api to get all Bank Customers by customer name")
@@ -115,16 +128,64 @@ public class UserController {
 		return userResource.resetPassword(request);
 	}
 
-	
-// Add By Prince	
+	// Add By Prince
 	@PostMapping("/update-profile")
 	public ResponseEntity<CommonApiResponse> updateUserData(@RequestBody UserProfileUpdateDto request) {
 		System.out.println(" hallo");
-	    return userResource.updateUserData(request);
+		return userResource.updateUserData(request);
 	}
-	
-    @PostMapping("/upload-profile-image")
-    public ResponseEntity<CommonApiResponse> uploadProfileImage(@RequestParam("userId") Long userId, @RequestParam("image") MultipartFile image) {
-        return userResource.uploadProfileImage(userId, image);
-    }
+
+	@PostMapping("/upload-profile-image")
+	public ResponseEntity<CommonApiResponse> uploadProfileImage(@RequestParam("userId") Long userId,
+			@RequestParam("image") MultipartFile image) {
+		return userResource.uploadProfileImage(userId, image);
+	}
+
+	// for multiple account of a user..........
+
+	@GetMapping("/fetch/userId")
+	@Operation(summary = "Api to get Users By id")
+	public ResponseEntity<UserAccountDto> fetchById(@RequestParam("userId") String userId) {
+		return userResource.findByUserId(userId);
+	}
+
+	@PostMapping("addAccount")
+	public ResponseEntity<CommonApiResponse> addAccount(@RequestBody Map<String, String> accountData) {
+		// long a=userAccountDao.count()+1;
+		// String AcNo=accountData.get("currencyId").toString()+String.format("%06d",
+		// a);
+		UserAccounts userAccount = new UserAccounts();
+		userAccount.setUserId(accountData.get("userId").toString());
+		userAccount.setAccountBalance(BigDecimal.ZERO);
+		userAccount.setAccountNumber("");
+		userAccount.setCurrency(accountData.get("currency").toString());
+		userAccount.setStatus(UserStatus.PENDING.value());
+		userAccountDao.save(userAccount);
+
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/deleteAccount/acno")
+	public ResponseEntity<CommonApiResponse> delete(@RequestParam("acno") String acno) {
+		UserAccounts userAccount = userAccountDao.findByAccountNumber(acno);
+		if (userAccount != null) {
+			userAccount.setStatus("Closed");
+			userAccountDao.save(userAccount);
+		} else {
+			return ResponseEntity.badRequest().build();
+		}
+		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping("/fetch/customerAccounts/pending/request")
+	@Operation(summary = "Api to get Users By Role")
+	public ResponseEntity<UserAccountDto> fetchPendingCustomersAccounts() {
+		return userResource.fetchPendingCustomersAccounts();
+	}
+
+	@PostMapping("update/accountStatus")
+	@Operation(summary = "Api to update the user status")
+	public ResponseEntity<CommonApiResponse> updateAccountStatus(@RequestBody Map<String, String> accountData) {
+		return userResource.updateAccountStatus(accountData);
+	}
 }
