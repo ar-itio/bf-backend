@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,15 +22,20 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlinebankingsystem.config.CustomUserDetailsService;
+import com.onlinebankingsystem.dao.CurrencyDao;
+import com.onlinebankingsystem.dao.UserAccountDao;
 import com.onlinebankingsystem.dto.CommonApiResponse;
 import com.onlinebankingsystem.dto.RegisterUserRequestDto;
+import com.onlinebankingsystem.dto.UserAccountDto;
 import com.onlinebankingsystem.dto.UserListResponseDto;
 import com.onlinebankingsystem.dto.UserLoginRequest;
 import com.onlinebankingsystem.dto.UserLoginResponse;
 import com.onlinebankingsystem.dto.UserProfileUpdateDto;
 import com.onlinebankingsystem.dto.UserStatusUpdateRequestDto;
 import com.onlinebankingsystem.entity.Bank;
+import com.onlinebankingsystem.entity.Currency;
 import com.onlinebankingsystem.entity.User;
+import com.onlinebankingsystem.entity.UserAccounts;
 import com.onlinebankingsystem.service.BankService;
 import com.onlinebankingsystem.service.EmailService;
 import com.onlinebankingsystem.service.JwtService;
@@ -75,6 +81,12 @@ public class UserResource {
 
 	@Autowired
 	private EmailService emailService;
+
+	@Autowired
+	private UserAccountDao userAccountDao;
+
+	@Autowired
+	private CurrencyDao currencyDao;
 
 	private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -367,6 +379,17 @@ public class UserResource {
 		User updatedUser = this.userService.updateUser(user);
 
 		if (updatedUser != null) {
+			long a = userAccountDao.count() + 1;
+			String AcNo = "000000" + a;
+			UserAccounts userAccount = new UserAccounts();
+			userAccount.setUserId(String.valueOf(user.getId()));
+			userAccount.setAccountBalance(BigDecimal.ZERO);
+			userAccount.setAccountNumber(AcNo);
+			userAccount.setCurrency("");
+			userAccount.setStatus("Active");
+			userAccountDao.save(userAccount);
+			// create defoult account
+
 			response.setResponseMessage("User " + request.getStatus() + " Successfully!!!");
 			response.setSuccess(true);
 			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.OK);
@@ -633,7 +656,7 @@ public class UserResource {
 		emailBody.append("<h3>Dear " + user.getName() + ",</h3>");
 		emailBody.append("<p>You can reset the password by using the below link.</p>");
 		emailBody.append("</br>");
-		emailBody.append("<a href='https://api.pro.oyefin.com" + user.getId()
+		emailBody.append("<a href='http://localhost:3000/" + user.getId()
 				+ "/reset-password'>Click me to reset the password</a>");
 
 		emailBody.append("<p>Best Regards,<br/>Bank</p>");
@@ -816,4 +839,123 @@ public class UserResource {
 			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
 		}
 	}
+
+	public ResponseEntity<UserAccountDto> findByUserId(String userId) {
+
+		UserAccountDto response = new UserAccountDto();
+
+		List<UserAccounts> accounts = this.userAccountDao.findByUserId(userId);
+
+		response.setAccounts(accounts);
+
+		// response.setResponseMessage("User Fetched Successfully");
+		// response.setSuccess(true);
+
+		// Convert the object to a JSON string
+		String jsonString = null;
+		try {
+			jsonString = objectMapper.writeValueAsString(response);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		System.out.println(jsonString);
+
+		return new ResponseEntity<UserAccountDto>(response, HttpStatus.OK);
+	}
+
+	// public ResponseEntity<UserAccountDto> addAccount(UserAccountDto account) {
+	//
+	// UserAccountDto response = new UserAccountDto();
+	//
+	// List<UserAccounts> accounts = this.userAccountDao.findByUserId(userId);
+	//
+	// response.setAccounts(accounts);
+	//
+	//// response.setResponseMessage("User Fetched Successfully");
+	//// response.setSuccess(true);
+	//
+	// // Convert the object to a JSON string
+	// String jsonString = null;
+	// try {
+	// jsonString = objectMapper.writeValueAsString(response);
+	// } catch (JsonProcessingException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	//
+	// System.out.println(jsonString);
+	//
+	// return new ResponseEntity<UserAccountDto>(response, HttpStatus.OK);
+	// }
+
+	// User Accounts
+	public ResponseEntity<UserAccountDto> fetchPendingCustomersAccounts() {
+
+		UserAccountDto response = new UserAccountDto();
+
+		List<UserAccounts> users = new ArrayList<>();
+		users = this.userAccountDao.findByStatus(UserStatus.PENDING.value());
+
+		if (!users.isEmpty()) {
+			response.setAccounts(users);
+		}
+
+		response.setResponseMessage("Pending Customers Fetched Successful!!!");
+		response.setSuccess(true);
+
+		// Convert the object to a JSON string
+		String jsonString = null;
+		try {
+			jsonString = objectMapper.writeValueAsString(response);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		System.out.println(jsonString);
+
+		return new ResponseEntity<UserAccountDto>(response, HttpStatus.OK);
+	}
+
+	public ResponseEntity<CommonApiResponse> updateAccountStatus(Map<String, String> request) {
+		int userId = Integer.valueOf(request.get("userId").toString());
+		String status = request.get("status").toString();
+		LOG.info("Received request for updating the user status");
+		CommonApiResponse response = new CommonApiResponse();
+		if (request.isEmpty()) {
+			response.setResponseMessage("bad request, missing data");
+			response.setSuccess(false);
+
+			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
+		}
+
+		if (userId == 0) {
+			response.setResponseMessage("bad request, user id is missing");
+			response.setSuccess(false);
+
+			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
+		}
+
+		UserAccounts user = null;
+		user = this.userAccountDao.findById(userId);
+		user.setStatus(status);
+		if (status.equalsIgnoreCase("Success")) {
+			List<UserAccounts> list = userAccountDao.findByStatus(UserStatus.ACTIVE.value());
+			long a = list.size() + 1;
+			Currency obj = currencyDao.findByCode(request.get("currencyId").toString());
+			String AcNo = obj.getId() + String.format("%06d", a);
+			user.setStatus("Active");
+			user.setAccountNumber(AcNo);
+
+		}
+
+		this.userAccountDao.save(user);
+		response.setResponseMessage("User " + status + " Successfully!!!");
+		response.setSuccess(true);
+		return new ResponseEntity<CommonApiResponse>(response, HttpStatus.OK);
+
+	}
+
 }
