@@ -267,7 +267,7 @@ public class UserResource {
 		user = userService.getUserByEmail(loginRequest.getEmailId());
 
 		if (!user.getStatus().equals(UserStatus.ACTIVE.value())) {
-			response.setResponseMessage("Failed to login");
+			response.setResponseMessage("you have register successfully , wait for approval from admin side");
 			response.setSuccess(true);
 			return new ResponseEntity<UserLoginResponse>(response, HttpStatus.BAD_REQUEST);
 		}
@@ -730,7 +730,8 @@ public class UserResource {
 		if (org.apache.commons.lang3.StringUtils.isNotEmpty(request.getGender())) {
 			existingUser.setGender(request.getGender());
 		}
-		existingUser.setName(request.getFirstName() + " " + request.getLastName());
+		existingUser.setName(request.getLastName() == null ? request.getName()
+				: request.getFirstName() + " " + request.getLastName());
 		existingUser.setPincode(request.getPincode());
 		existingUser.setStreet(request.getStreet());
 		existingUser.setEmail(request.getEmail());
