@@ -132,6 +132,7 @@ public class UserResource {
 		if (request.getRoles().equals(UserRole.ROLE_CUSTOMER.value())) {
 			user.setStatus(UserStatus.PENDING.value());
 			user.setIsAccountLinked(IsAccountLinked.NO.value());
+			user.setProfileComplete(false);
 
 			accountId = TransactionIdGenerator.generateAccountId();
 			rawPassword = TransactionIdGenerator.generatePassword();
@@ -375,6 +376,7 @@ public class UserResource {
 		user = this.userService.getUserById(request.getUserId());
 
 		user.setStatus(request.getStatus());
+		user.setProfileComplete(false);
 
 		User updatedUser = this.userService.updateUser(user);
 
