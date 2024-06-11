@@ -707,7 +707,7 @@ public class UserResource {
 		emailBody.append("<h3>Dear " + user.getName() + ",</h3>");
 		emailBody.append("<p>You can reset the password by using the below link.</p>");
 		emailBody.append("</br>");
-		emailBody.append("<a href='http://localhost:3000/" + user.getId()
+		emailBody.append("<a href='https://pro.oyefin.com/" + user.getId()
 				+ "/reset-password'>Click me to reset the password</a>");
 
 		emailBody.append("<p>Best Regards,<br/>Bank</p>");
