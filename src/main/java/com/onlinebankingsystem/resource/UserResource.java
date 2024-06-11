@@ -32,6 +32,7 @@ import com.onlinebankingsystem.dto.UserLoginRequest;
 import com.onlinebankingsystem.dto.UserLoginResponse;
 import com.onlinebankingsystem.dto.UserProfileUpdateDto;
 import com.onlinebankingsystem.dto.UserStatusUpdateRequestDto;
+import com.onlinebankingsystem.entity.AuthenticationResponse;
 import com.onlinebankingsystem.entity.Bank;
 import com.onlinebankingsystem.entity.Currency;
 import com.onlinebankingsystem.entity.User;
@@ -54,6 +55,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import com.onlinebankingsystem.service.TwoFactorAuthenticationService;
 
 @Component
 public class UserResource {
@@ -90,9 +92,56 @@ public class UserResource {
 
 	private ObjectMapper objectMapper = new ObjectMapper();
 
+	@Autowired
+	private TwoFactorAuthenticationService tfaService;
+
+	public AuthenticationResponse TFA(UserLoginRequest request) {
+		User user = userService.getUserByEmail(request.getEmailId());
+		user.setTwoFactorEnabled(request.isTwoFactorRequired());
+
+		// If MFA enabled, generate a new secret
+		if (request.isTwoFactorRequired()) {
+			user.setTwoFactorEnabled(false);
+			user.setGoogleAuthSecret(tfaService.generateNewSecret());
+		}
+
+		userService.updateUser(user);
+		var jwtToken = jwtService.generateToken(user.toString());
+		var refreshToken = "";
+
+		AuthenticationResponse response = new AuthenticationResponse();
+		response.setSecretImageUri(tfaService.generateQrCodeImageUri(user.getGoogleAuthSecret()));
+		response.setAccessToken(jwtToken);
+		response.setRefreshToken(refreshToken);
+		response.setMfaEnabled(request.isTwoFactorRequired());
+
+		return response;
+	}
+
+	public ResponseEntity<AuthenticationResponse> verifyCode(UserLoginRequest verificationRequest) {
+		AuthenticationResponse response = new AuthenticationResponse();
+
+		if (userService.getUserByEmail(verificationRequest.getEmailId()) == null) {
+			return new ResponseEntity<AuthenticationResponse>(response, HttpStatus.BAD_REQUEST);
+		}
+		User user = userService.getUserByEmail(verificationRequest.getEmailId());
+		if (tfaService.isOtpNotValid(user.getGoogleAuthSecret(), verificationRequest.getTwoFactorCode())) {
+
+			return new ResponseEntity<AuthenticationResponse>(response, HttpStatus.BAD_REQUEST);
+		}
+		var jwtToken = jwtService.generateToken(user.getName());
+		response.setSecretImageUri(tfaService.generateQrCodeImageUri(user.getGoogleAuthSecret()));
+		response.setAccessToken(jwtToken);
+		response.setMfaEnabled(user.isTwoFactorEnabled());
+		user.setTwoFactorEnabled(true);
+		userService.updateUser(user);
+
+		return new ResponseEntity<AuthenticationResponse>(response, HttpStatus.OK);
+	}
+
 	public ResponseEntity<CommonApiResponse> registerUser(RegisterUserRequestDto request) {
 
-		LOG.info("Received request for register user");
+		LOG.info("Received request for register user" + tfaService.generateNewSecret());
 
 		CommonApiResponse response = new CommonApiResponse();
 
@@ -658,7 +707,7 @@ public class UserResource {
 		emailBody.append("<h3>Dear " + user.getName() + ",</h3>");
 		emailBody.append("<p>You can reset the password by using the below link.</p>");
 		emailBody.append("</br>");
-		emailBody.append("<a href='https://pro.oyefin.com/" + user.getId()
+		emailBody.append("<a href='http://localhost:3000/" + user.getId()
 				+ "/reset-password'>Click me to reset the password</a>");
 
 		emailBody.append("<p>Best Regards,<br/>Bank</p>");

@@ -24,6 +24,7 @@ import com.onlinebankingsystem.dto.UserLoginRequest;
 import com.onlinebankingsystem.dto.UserLoginResponse;
 import com.onlinebankingsystem.dto.UserProfileUpdateDto;
 import com.onlinebankingsystem.dto.UserStatusUpdateRequestDto;
+import com.onlinebankingsystem.entity.AuthenticationResponse;
 import com.onlinebankingsystem.entity.User;
 import com.onlinebankingsystem.entity.UserAccounts;
 import com.onlinebankingsystem.resource.UserResource;
@@ -42,6 +43,20 @@ public class UserController {
 
 	@Autowired
 	private UserAccountDao userAccountDao;
+
+	/****************** Start Api For Two Fector Authontication *******************/
+	@PostMapping("tfa")
+	@Operation(summary = "Api to register customer or bank user")
+	public AuthenticationResponse twoFectorAthontication(@RequestBody UserLoginRequest request) {
+		return this.userResource.TFA(request);
+	}
+
+	@PostMapping("verify")
+	public ResponseEntity<?> verifyCode(@RequestBody UserLoginRequest verificationRequest) {
+		return userResource.verifyCode(verificationRequest);
+	}
+
+	/********* End Api For Two Fector Authontication *********/
 
 	// for customer and bank register
 	@PostMapping("register")

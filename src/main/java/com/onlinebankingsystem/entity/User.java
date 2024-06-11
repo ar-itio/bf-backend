@@ -22,7 +22,7 @@ public class User {
 
 	@JsonIgnore
 	private String password;
-    private String confirmpassword;
+	private String confirmpassword;
 	private String roles;
 	private String contact;
 	private String street;
@@ -31,38 +31,54 @@ public class User {
 	private String accountId; // to use during KYC
 	private BigDecimal accountBalance;
 	private String status; // active, deactivated
-	
+
 	// Add by Prince
 	private String firstName;
-    private String lastName;
-    private String contactNumber;
-    private String gender;
-    private String dateOfBirth;
-    private String address;
-    private String address2;
-    private String city;
-    private String state;
-    private String country;
-    private String individualOrCorporate;
-    private String employmentStatus;
-    private String roleInCompany;
-    private String businessActivity;
-    private String enterActivity;
-    private String companyName;
-    private String companyRegistrationNumber;
-    private String dateOfIncorporation;
-    private String countryOfIncorporation;
-    private String companyAddress;
-    private String nationality;
-    private String placeOfBirth;
-    private String idType;
-    private String idNumber;
-    private String idExpiryDate;
-    private String accountNumber;
-    private String profileImg;
-    private Boolean profileComplete;// Add By Prince	
+	private String lastName;
+	private String contactNumber;
+	private String gender;
+	private String dateOfBirth;
+	private String address;
+	private String address2;
+	private String city;
+	private String state;
+	private String country;
+	private String individualOrCorporate;
+	private String employmentStatus;
+	private String roleInCompany;
+	private String businessActivity;
+	private String enterActivity;
+	private String companyName;
+	private String companyRegistrationNumber;
+	private String dateOfIncorporation;
+	private String countryOfIncorporation;
+	private String companyAddress;
+	private String nationality;
+	private String placeOfBirth;
+	private String idType;
+	private String idNumber;
+	private String idExpiryDate;
+	private String accountNumber;
+	private String profileImg;
+	private Boolean profileComplete;// Add By Prince
+	private boolean twoFactorEnabled;
+	private String googleAuthSecret;
 
-	
+	public String getGoogleAuthSecret() {
+		return googleAuthSecret;
+	}
+
+	public void setGoogleAuthSecret(String googleAuthSecret) {
+		this.googleAuthSecret = googleAuthSecret;
+	}
+
+	public boolean isTwoFactorEnabled() {
+		return twoFactorEnabled;
+	}
+
+	public void setTwoFactorEnabled(boolean twoFactorEnabled) {
+		this.twoFactorEnabled = twoFactorEnabled;
+	}
 
 	public int getId() {
 		return id;
@@ -391,7 +407,5 @@ public class User {
 	public void setProfileImg(String profileImg) {
 		this.profileImg = profileImg;
 	}
-
-	
 
 }

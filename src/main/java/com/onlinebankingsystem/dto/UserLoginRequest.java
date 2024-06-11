@@ -10,6 +10,24 @@ public class UserLoginRequest {
 	private String confirmpassword;
 
 	private String role;
+	private String twoFactorCode;
+	private boolean twoFactorRequired; // Add this field
+
+	public String getTwoFactorCode() {
+		return twoFactorCode;
+	}
+
+	public void setTwoFactorCode(String twoFactorCode) {
+		this.twoFactorCode = twoFactorCode;
+	}
+
+	public boolean isTwoFactorRequired() {
+		return twoFactorRequired;
+	}
+
+	public void setTwoFactorRequired(boolean twoFactorRequired) {
+		this.twoFactorRequired = twoFactorRequired;
+	}
 
 	public String getEmailId() {
 		return emailId;
@@ -50,6 +68,5 @@ public class UserLoginRequest {
 	public void setConfirmpassword(String confirmpassword) {
 		this.confirmpassword = confirmpassword;
 	}
-
 
 }

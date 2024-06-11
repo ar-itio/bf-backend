@@ -42,7 +42,8 @@ public class SecurityConfig {
 
 				.authorizeHttpRequests(
 						auth -> auth
-								.requestMatchers("/api/user/login", "/api/user/admin/register", "/api/user/register",
+								.requestMatchers("/api/user/tfa", "/api/user/verify", "/api/user/login",
+										"/api/user/admin/register", "/api/user/register",
 										"/api/transaction/update/status", "/api/user/fetch/userId",
 										"/api/transaction/fetch/customer/transactions/all", "/api/user/fetch/id",
 										"/api/user/send/reset-password/mail", "/api/user/addAccount",
