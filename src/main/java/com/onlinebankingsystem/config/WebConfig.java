@@ -43,4 +43,5 @@ public class WebConfig {
         bean.setOrder(CORS_FILTER_ORDER);
         return bean;
     }
+
 }
