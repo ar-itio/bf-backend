@@ -320,11 +320,11 @@ public class UserResource {
 			if (chekU != null) {
 				if (loginRequest.getPassword().equals(chekU.getPassword())
 						&& loginRequest.getEmailId().equals(chekU.getUserName())) {
+				} else {
+					response.setResponseMessage("Invalid email, username or password.");
+					response.setSuccess(false);
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
-			} else {
-				response.setResponseMessage("Invalid email, username or password.");
-				response.setSuccess(false);
-				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			}
 		}
 
