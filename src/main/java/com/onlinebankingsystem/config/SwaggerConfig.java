@@ -17,14 +17,13 @@ public class SwaggerConfig {
 	public OpenAPI springShopOpenAPI() {
 		return new OpenAPI()
 				.info(new Info().title("Online Banking Application")
-				.description("Online Banking Application using Spring Boot 3")
-				.version("v0.0.1")
-				.license(new License()
-				.name("Apache 2.0")
-				.url("http://springdoc.org")))
+						.description("Online Banking Application using Spring Boot 3")
+						.version("v0.0.1")
+						.license(new License()
+								.name("Apache 2.0")
+								.url("http://springdoc.org")))
 				.externalDocs(new ExternalDocumentation().description("Code With Murad")
-				.url("https://codewithmurad.com"));
+						.url("https://codewithmurad.com"));
 	}
-	
-	
+
 }

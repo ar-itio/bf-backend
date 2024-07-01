@@ -141,13 +141,13 @@ public class UserResource {
 
 	public ResponseEntity<CommonApiResponse> registerUser(RegisterUserRequestDto request) {
 
-		LOG.info("Received request for register user" + tfaService.generateNewSecret());
+		LOG.info("Received request for register user");
 
 		CommonApiResponse response = new CommonApiResponse();
 
 		if (request == null) {
 			response.setResponseMessage("user is null");
-			response.setSuccess(true);
+			response.setSuccess(false);
 
 			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
 		}
@@ -156,14 +156,22 @@ public class UserResource {
 
 		if (existingUser != null) {
 			response.setResponseMessage("User with this Email Id already resgistered!!!");
-			response.setSuccess(true);
+			response.setSuccess(false);
+
+			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
+		}
+		existingUser = this.userService.getUserByUsername(request.getUserName());
+
+		if (this.userService.getUserByUsername(request.getUserName()) != null) {
+			response.setResponseMessage("User with this User Name Id already resgistered!!!");
+			response.setSuccess(false);
 
 			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
 		}
 
 		if (request.getRoles() == null) {
 			response.setResponseMessage("bad request ,Role is missing");
-			response.setSuccess(true);
+			response.setSuccess(false);
 
 			return new ResponseEntity<CommonApiResponse>(response, HttpStatus.BAD_REQUEST);
 		}
@@ -174,7 +182,7 @@ public class UserResource {
 
 		String encodedPassword = "";
 
-		String rawPassword = "";
+		String rawPassword = request.getPassword();
 		String accountId = "";
 		user.setAccountBalance(BigDecimal.ZERO);
 
@@ -182,6 +190,7 @@ public class UserResource {
 			user.setStatus(UserStatus.PENDING.value());
 			user.setIsAccountLinked(IsAccountLinked.NO.value());
 			user.setProfileComplete(false);
+			user.setUserName(request.getUserName());
 
 			accountId = TransactionIdGenerator.generateAccountId();
 			rawPassword = TransactionIdGenerator.generatePassword();
@@ -295,9 +304,8 @@ public class UserResource {
 
 		if (loginRequest == null) {
 			response.setResponseMessage("Missing Input");
-			response.setSuccess(true);
-
-			return new ResponseEntity<UserLoginResponse>(response, HttpStatus.BAD_REQUEST);
+			response.setSuccess(false);
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
 
 		String jwtToken = null;
@@ -307,42 +315,52 @@ public class UserResource {
 			authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(loginRequest.getEmailId(), loginRequest.getPassword()));
 		} catch (Exception ex) {
-			response.setResponseMessage("Invalid email or password.");
-			response.setSuccess(true);
-			return new ResponseEntity<UserLoginResponse>(response, HttpStatus.BAD_REQUEST);
+
+			User chekU = userService.getUserByUsername(loginRequest.getEmailId());
+			if (chekU != null) {
+				if (loginRequest.getPassword().equals(chekU.getPassword())
+						&& loginRequest.getEmailId().equals(chekU.getUserName())) {
+				}
+			} else {
+				response.setResponseMessage("Invalid email, username or password.");
+				response.setSuccess(false);
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+			}
 		}
 
-		UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getEmailId());
-
-		user = userService.getUserByEmail(loginRequest.getEmailId());
-
-		if (!user.getStatus().equals(UserStatus.ACTIVE.value())) {
-			response.setResponseMessage("you have register successfully , wait for approval from admin side");
-			response.setSuccess(true);
-			return new ResponseEntity<UserLoginResponse>(response, HttpStatus.BAD_REQUEST);
+		UserDetails userDetails;
+		if (loginRequest.getEmailId().contains("@")) {
+			userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getEmailId());
+			user = userService.getUserByEmail(loginRequest.getEmailId());
+		} else {
+			userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getEmailId());
+			user = userService.getUserByUsername(loginRequest.getEmailId());
 		}
 
-		for (GrantedAuthority grantedAuthory : userDetails.getAuthorities()) {
-			if (grantedAuthory.getAuthority().equals(loginRequest.getRole())) {
+		if (user == null || !user.getStatus().equals(UserStatus.ACTIVE.value())) {
+			response.setResponseMessage("You have registered successfully, wait for approval from admin side.");
+			response.setSuccess(false);
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+		}
+
+		for (GrantedAuthority grantedAuthority : userDetails.getAuthorities()) {
+			if (grantedAuthority.getAuthority().equals(loginRequest.getRole())) {
 				jwtToken = jwtService.generateToken(userDetails.getUsername());
 			}
 		}
 
-		// user is authenticated
+		// User is authenticated
 		if (jwtToken != null) {
 			response.setUser(user);
-			response.setResponseMessage("Logged in sucessful");
+			response.setResponseMessage("Logged in successfully");
 			response.setSuccess(true);
 			response.setJwtToken(jwtToken);
-			return new ResponseEntity<UserLoginResponse>(response, HttpStatus.OK);
-		}
-
-		else {
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} else {
 			response.setResponseMessage("Failed to login");
-			response.setSuccess(true);
-			return new ResponseEntity<UserLoginResponse>(response, HttpStatus.BAD_REQUEST);
+			response.setSuccess(false);
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
-
 	}
 
 	public ResponseEntity<UserListResponseDto> getUsersByRole(String role) {
@@ -546,12 +564,20 @@ public class UserResource {
 		StringBuilder emailBody = new StringBuilder();
 		emailBody.append("<html><body>");
 		emailBody.append("<h3>Dear " + customer.getName() + ",</h3>");
-		emailBody.append("<p>Welcome aboard! We've generated a temporary password for you.</p>");
-		emailBody.append("</br> Your Account Id is:<span><b>" + accountId + "</b><span></p>");
-		emailBody.append("</br> Your Password is:<span><b>" + rawPassord + "</b><span></p>");
+		emailBody.append("<p>Welcome aboard! You are Register Successfully.</p>");
+		emailBody.append("<p>Click on below link to login.</p>");
+		emailBody.append("</br>");
+		emailBody.append("<a href='http://pro.oyefin.com/'>Login Here</a>");
 
-		emailBody.append("<p>Please use generated Password for login.</p>");
-		emailBody.append("<p>And use Account Id for KYC.</p>");
+		// emailBody.append("<p>Welcome aboard! We've generated a temporary password for
+		// you.</p>");
+		// emailBody.append("</br> Your Account Id is:<span><b>" + accountId +
+		// "</b><span></p>");
+		// emailBody.append("</br> Your Password is:<span><b>" + rawPassord +
+		// "</b><span></p>");
+
+		// emailBody.append("<p>Please use generated Password for login.</p>");
+		emailBody.append("<p>use Account Id for KYC At Login time.</p>");
 
 		emailBody.append("<p>Best Regards,<br/>Bank</p>");
 
@@ -707,11 +733,10 @@ public class UserResource {
 		emailBody.append("<h3>Dear " + user.getName() + ",</h3>");
 		emailBody.append("<p>You can reset the password by using the below link.</p>");
 		emailBody.append("</br>");
-		emailBody.append("<a href='https://pro.oyefin.com/" + user.getId()
+		emailBody.append("<a href='http://pro.oyefin.com/" + user.getId()
 				+ "/reset-password'>Click me to reset the password</a>");
 
 		emailBody.append("<p>Best Regards,<br/>Bank</p>");
-
 		emailBody.append("</body></html>");
 
 		this.emailService.sendEmail(user.getEmail(), subject, emailBody.toString());

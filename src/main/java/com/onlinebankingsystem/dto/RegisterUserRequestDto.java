@@ -10,6 +10,8 @@ public class RegisterUserRequestDto {
 
 	private String name;
 
+	private String userName;
+
 	private String email;
 
 	private String password;
@@ -42,6 +44,14 @@ public class RegisterUserRequestDto {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 
 	public String getEmail() {

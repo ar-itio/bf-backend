@@ -17,7 +17,7 @@ public class User {
 	private int id;
 
 	private String name;
-
+	private String userName;
 	private String email;
 
 	@JsonIgnore
@@ -63,6 +63,14 @@ public class User {
 	private Boolean profileComplete;// Add By Prince
 	private boolean twoFactorEnabled;
 	private String googleAuthSecret;
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
 
 	public String getGoogleAuthSecret() {
 		return googleAuthSecret;
